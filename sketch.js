@@ -109,7 +109,13 @@ function draw() {
 	&& ball.bottomEdge <= rightPaddle.bottomEdge + margin &&
 	ball.forceX > 0)  {
 		ball.forceX = -ball.forceX
-		ball.forceX += 6/Math.abs(ball.forceX) * Math.sign(ball.forceX)
+		ball.forceX += 8/Math.abs(ball.forceX) * Math.sign(ball.forceX)
+		if (ball.positionY > rightPaddle.positionY) {
+			ball.forceY = (abs(ball.positionY - rightPaddle.positionY) / (rightPaddle.elementHeight / 2) ) * 4
+		} else {
+
+			ball.forceY = (abs(ball.positionY - rightPaddle.positionY) / (rightPaddle.elementHeight / 2) ) * -1 * 4
+		}
 	}
 
 	else if (almostEqual(ball.leftEdge, leftPaddle.rightEdge, 8)
@@ -117,8 +123,14 @@ function draw() {
 	&& ball.leftEdge <= leftPaddle.bottomEdge + margin &&
 	ball.forceX < 0 ) {
 		ball.forceX = -ball.forceX
-		ball.forceX += 6/Math.abs(ball.forceX * 2) * Math.sign(ball.forceX)
-	
+		ball.forceX += 8/Math.abs(ball.forceX * 2) * Math.sign(ball.forceX)
+
+		if (ball.positionY > leftPaddle.positionY) {
+		ball.forceY = (abs(ball.positionY - leftPaddle.positionY) / (leftPaddle.elementHeight / 2) ) * 4
+		} else {
+			ball.forceY = (abs(ball.positionY - leftPaddle.positionY) / (leftPaddle.elementHeight / 2) ) * -1 * 4
+
+		}
 	}
 }
 
