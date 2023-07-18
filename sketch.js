@@ -1,6 +1,13 @@
 let WIDTH = 600;
 let HEIGHT = 400;
-let margin = 24;
+let margin = 10;
+let blip, wallBlip, goal;
+function preload() {
+	wallBlip = loadSound("blip1.wav")
+	blip = loadSound("blip1.wav")
+	goal = loadSound("goal.wav")
+}
+
 
 function setup() {
 	createCanvas(WIDTH, HEIGHT);
@@ -42,7 +49,7 @@ class Paddle {
 			this.positionY += this.speed * deltaTime/10;
 		}
 	}
-	updateBallEdges() {
+	updateEdges() {
 		this.leftEdge = this.positionX - this.elementWidth / 2
 		this.rightEdge = this.positionX + this.elementWidth / 2
 		this.topEdge = this.positionY - this.elementHeight / 2;
@@ -72,19 +79,19 @@ class Ball extends Paddle{
 }
 
 
-let leftPaddle = new Paddle(25, 20, 100, 4, [0, 0, 255]);
-let rightPaddle = new Paddle(WIDTH - 25, 20, 100, 4, [255, 0, 0]);
-let ball = new Ball(25, [150, 150, 150], 4 , 4)
-
+let leftPaddle = new Paddle(25, 20, 100, 4, [255, 255, 255]);
+let rightPaddle = new Paddle(WIDTH - 25, 20, 100, 4, [255, 255, 255]);
+let ball = new Ball(25, [150, 150, 150], 6 , 6)
 
 
 
 function draw() {
 	rectMode(CENTER)
-	background(220);
+	background(40);
 	// draw center gray line
-	stroke(100, 100, 100, 50);
-	line(0, 200, 600, 200);
+	stroke(100, 100, 100, 200);
+	line(300, 0, 300, 400);
+
 
 	leftPaddle.drawPaddle()
 	rightPaddle.drawPaddle()
@@ -94,44 +101,59 @@ function draw() {
 	ball.drawBall()	
 	ball.moveBall()
 
-	ball.updateBallEdges()
-	leftPaddle.updateBallEdges()
-	rightPaddle.updateBallEdges()
+	ball.updateEdges()
+	leftPaddle.updateEdges()
+	rightPaddle.updateEdges()
 
-	if (ball.beyondTopWall() || ball.beyondBottomWall()) {
+	// "&& ball.forceY < 0" fixed the issue where the ball stucks at the ball
+	if (ball.beyondTopWall() && ball.forceY < 0) {
 		ball.forceY = -ball.forceY
+		wallBlip.play()
+	}
+	
+	if (ball.beyondBottomWall() && ball.forceY > 0) {
+		ball.forceY = -ball.forceY
+		wallBlip.play()
 	}
 	// I used "ball.forceX > 0" because for some reason the ball goes back and forth when it collides with the paddles
 	// Therefore I made sure the ball never bounces unless it's moving towards the paddle
 	// The "margin" makes the game easier for the player by expanding the bouncing area 
 	if (almostEqual(ball.rightEdge, rightPaddle.leftEdge, 8)
-	&& ball.topEdge >= rightPaddle.topEdge - margin
-	&& ball.bottomEdge <= rightPaddle.bottomEdge + margin &&
-	ball.forceX > 0)  {
+	&& ball.bottomEdge >= rightPaddle.topEdge - margin
+	&& ball.topEdge <= rightPaddle.bottomEdge + margin
+	&& ball.forceX > 0)  {
+		blip.play()
 		ball.forceX = -ball.forceX
-		ball.forceX += 8/Math.abs(ball.forceX) * Math.sign(ball.forceX)
+		ball.forceX += Math.floor(8/Math.abs(ball.forceX)) * Math.sign(ball.forceX)
 		if (ball.positionY > rightPaddle.positionY) {
-			ball.forceY = (abs(ball.positionY - rightPaddle.positionY) / (rightPaddle.elementHeight / 2) ) * 4
+			ball.forceY = Math.floor((abs(ball.positionY - rightPaddle.positionY) / (rightPaddle.elementHeight / 2) ) * 6)
 		} else {
-
-			ball.forceY = (abs(ball.positionY - rightPaddle.positionY) / (rightPaddle.elementHeight / 2) ) * -1 * 4
+			ball.forceY = Math.floor((abs(ball.positionY - rightPaddle.positionY) / (rightPaddle.elementHeight / 2) ) * -1 * 6)
 		}
 	}
 
 	else if (almostEqual(ball.leftEdge, leftPaddle.rightEdge, 8)
-	&& ball.topEdge >= leftPaddle.topEdge - margin
-	&& ball.leftEdge <= leftPaddle.bottomEdge + margin &&
-	ball.forceX < 0 ) {
+	&& ball.bottomEdge >= leftPaddle.topEdge - margin
+	&& ball.topEdge <= leftPaddle.bottomEdge + margin 
+	&& ball.forceX < 0 ) {
+		blip.play()
 		ball.forceX = -ball.forceX
-		ball.forceX += 8/Math.abs(ball.forceX * 2) * Math.sign(ball.forceX)
-
+		ball.forceX += Math.floor(8/Math.abs(ball.forceX * 2) * Math.sign(ball.forceX))
 		if (ball.positionY > leftPaddle.positionY) {
-		ball.forceY = (abs(ball.positionY - leftPaddle.positionY) / (leftPaddle.elementHeight / 2) ) * 4
+		ball.forceY = Math.floor((abs(ball.positionY - leftPaddle.positionY) / (leftPaddle.elementHeight / 2) ) * 4)
 		} else {
-			ball.forceY = (abs(ball.positionY - leftPaddle.positionY) / (leftPaddle.elementHeight / 2) ) * -1 * 4
+			ball.forceY = Math.floor((abs(ball.positionY - leftPaddle.positionY) / (leftPaddle.elementHeight / 2) ) * -1 * 4)
 
 		}
 	}
+
+	// goal!
+	if (ball.leftEdge > WIDTH || ball.rightEdge < 0) {
+		goal.play()
+		ball = new Ball(25, [150, 150, 150], 6 , 6)
+	}
+
+
 }
 
 function almostEqual(a, b, acceptedDifference) {
