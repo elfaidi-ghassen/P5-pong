@@ -105,7 +105,7 @@ function draw() {
 	leftPaddle.updateEdges()
 	rightPaddle.updateEdges()
 
-	// "&& ball.forceY < 0" fixed the issue where the ball stucks at the ball
+	// "&& ball.forceY < 0" fixed the issue where the ball stucks at the ball.
 	if (ball.beyondTopWall() && ball.forceY < 0) {
 		ball.forceY = -ball.forceY
 		wallBlip.play()
