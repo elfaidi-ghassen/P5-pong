@@ -8,6 +8,10 @@ function preload() {
 	goal = loadSound("goal.wav")
 }
 
+// Perlin noise offset
+let rOff = Math.random() * 1000
+let gOff = Math.random() * 1000
+let bOff = Math.random() * 1000
 
 function setup() {
 	createCanvas(WIDTH, HEIGHT);
@@ -30,6 +34,7 @@ class Paddle {
 			G: color[1],
 			B: color[2] 
 		}
+		this.score = 0
 	}
 	drawPaddle() {
 		stroke(this.color.R, this.color.G, this.color.B);
@@ -68,7 +73,10 @@ class Ball extends Paddle{
 		this.forceY = forceY
 		}
 	drawBall() {
-		stroke(this.color.R, this.color.G, this.color.B);
+		fill(this.color.R, this.color.G, this.color.B)
+		if (this.color.R != this.color.G != this.color.B) {
+			noStroke()
+		}
 		circle(this.positionX, this.positionY, this.elementWidth);
 		stroke(0)
 	}
@@ -79,9 +87,9 @@ class Ball extends Paddle{
 }
 
 
-let leftPaddle = new Paddle(25, 20, 100, 4, [255, 255, 255]);
-let rightPaddle = new Paddle(WIDTH - 25, 20, 100, 4, [255, 255, 255]);
-let ball = new Ball(25, [150, 150, 150], 6 , 6)
+let leftPaddle = new Paddle(25, 20, 70, 4, [255, 255, 255]);
+let rightPaddle = new Paddle(WIDTH - 25, 20, 70, 4, [255, 255, 255]);
+let ball = new Ball(25, [150, 150, 150], 8 , 8)
 
 
 
@@ -93,10 +101,18 @@ function draw() {
 	line(300, 0, 300, 400);
 
 
-	leftPaddle.drawPaddle()
-	rightPaddle.drawPaddle()
+	textSize(60);
+	fill(255, 100)
+	text(leftPaddle.score.toString(), width/4, height/2+20);
+	text(rightPaddle.score.toString(), width/4 * 3, height/2+20);
+	fill(255)
+
+
+
 	rightPaddle.movePaddle(UP_ARROW, DOWN_ARROW)
 	leftPaddle.movePaddle(90, 83) // 90 => Z, 83 => S
+	leftPaddle.drawPaddle()
+	rightPaddle.drawPaddle()
 
 	ball.drawBall()	
 	ball.moveBall()
@@ -124,7 +140,7 @@ function draw() {
 	&& ball.forceX > 0)  {
 		blip.play()
 		ball.forceX = -ball.forceX
-		ball.forceX += Math.floor(8/Math.abs(ball.forceX)) * Math.sign(ball.forceX)
+		ball.forceX += Math.floor(12/Math.abs(ball.forceX)) * Math.sign(ball.forceX)
 		if (ball.positionY > rightPaddle.positionY) {
 			ball.forceY = Math.floor((abs(ball.positionY - rightPaddle.positionY) / (rightPaddle.elementHeight / 2) ) * 6)
 		} else {
@@ -132,13 +148,13 @@ function draw() {
 		}
 	}
 
-	else if (almostEqual(ball.leftEdge, leftPaddle.rightEdge, 8)
+	if (almostEqual(ball.leftEdge, leftPaddle.rightEdge, 8)
 	&& ball.bottomEdge >= leftPaddle.topEdge - margin
 	&& ball.topEdge <= leftPaddle.bottomEdge + margin 
 	&& ball.forceX < 0 ) {
 		blip.play()
 		ball.forceX = -ball.forceX
-		ball.forceX += Math.floor(8/Math.abs(ball.forceX * 2) * Math.sign(ball.forceX))
+		ball.forceX += Math.floor(12/Math.abs(ball.forceX * 2) * Math.sign(ball.forceX))
 		if (ball.positionY > leftPaddle.positionY) {
 		ball.forceY = Math.floor((abs(ball.positionY - leftPaddle.positionY) / (leftPaddle.elementHeight / 2) ) * 4)
 		} else {
@@ -147,13 +163,25 @@ function draw() {
 		}
 	}
 
-	// goal!
-	if (ball.leftEdge > WIDTH || ball.rightEdge < 0) {
+
+	if (ball.positionX > width) {
+		leftPaddle.score += 1
 		goal.play()
 		ball = new Ball(25, [150, 150, 150], 6 , 6)
+
+	} else if (ball.positionX < 0) {
+		goal.play()
+		rightPaddle.score += 1
+		ball = new Ball(25, [150, 150, 150], 6 , 6)
+
 	}
 
-
+	ball.color.R = 100 + noise(rOff) * 155
+	ball.color.G = 100 + noise(gOff) * 155
+	ball.color.B = 100 + noise(bOff) * 155
+	rOff += 0.01
+	gOff += 0.01
+	bOff += 0.01
 }
 
 function almostEqual(a, b, acceptedDifference) {
