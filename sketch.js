@@ -3,8 +3,8 @@ let HEIGHT = 400;
 let margin = 10;
 let blip, wallBlip, goal;
 function preload() {
-	wallBlip = loadSound("blip1.wav")
-	blip = loadSound("blip1.wav")
+	wallBlip = loadSound("blip2.wav")
+	blip = loadSound("blip2.wav")
 	goal = loadSound("goal.wav")
 }
 
