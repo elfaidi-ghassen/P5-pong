@@ -87,9 +87,9 @@ class Ball extends Paddle{
 }
 
 
-let leftPaddle = new Paddle(25, 20, 70, 4, [255, 255, 255]);
-let rightPaddle = new Paddle(WIDTH - 25, 20, 70, 4, [255, 255, 255]);
-let ball = new Ball(25, [150, 150, 150], 8 , 8)
+let leftPaddle = new Paddle(25, 12, 70, 4, [255, 255, 255]);
+let rightPaddle = new Paddle(WIDTH - 25, 12, 70, 4, [255, 255, 255]);
+let ball = new Ball(16, [150, 150, 150], 8 , 8)
 
 
 
@@ -167,12 +167,12 @@ function draw() {
 	if (ball.positionX > width) {
 		leftPaddle.score += 1
 		goal.play()
-		ball = new Ball(25, [150, 150, 150], 6 , 6)
+		ball = new Ball(16, [150, 150, 150], 6 , 6)
 
 	} else if (ball.positionX < 0) {
 		goal.play()
 		rightPaddle.score += 1
-		ball = new Ball(25, [150, 150, 150], 6 , 6)
+		ball = new Ball(16, [150, 150, 150], 6 , 6)
 
 	}
 
